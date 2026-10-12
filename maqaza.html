@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>S&R Collection</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    body {
+      background-color: #f4f6f8;
+      color: #333;
+      padding: 15px;
+      padding-top: 105px;
+    }
+    .brand-banner {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 85px;
+      background: linear-gradient(135deg, #0056b3, #003d82);
+      color: #ffffff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      border-bottom: 3px solid #ffc107;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    }
+    .brand-banner h2 {
+      font-size: 22px;
+      letter-spacing: 2px;
+      font-weight: bold;
+    }
+    .brand-banner p {
+      font-size: 11px;
+      color: #ffc107;
+      letter-spacing: 1px;
+      margin-top: 3px;
+    }
+    .container {
+      max-width: 500px;
+      margin: 0 auto;
+    }
+    .btn-add {
+      width: 100%;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      padding: 12px;
+      font-size: 15px;
+      font-weight: bold;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-bottom: 15px;
+      box-shadow: 0 4px 8px rgba(0,123,255,0.2);
+    }
+    .form-container {
+      display: none;
+      background: #ffffff;
+      padding: 20px;
+      border-radius: 10px;
+      margin-bottom: 15px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+    .form-container h3 {
+      margin-bottom: 15px;
+      font-size: 18px;
+      color: #0056b3;
+      border-bottom: 2px solid #f0f0f0;
+      padding-bottom: 8px;
+    }
+    .form-container label {
+      display: block;
+      font-size: 13px;
+      font-weight: bold;
+      color: #444;
+      margin-bottom: 5px;
+    }
+    .form-container input[type="text"] {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 15px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      font-size: 14px;
+    }
+    .form-container input[type="file"] {
+      width: 100%;
+      margin-bottom: 15px;
+      padding: 5px 0;
+      font-size: 14px;
+    }
+    .btn-submit {
+      width: 100%;
+      background-color: #28a745;
+      color: white;
+      border: none;
+      padding: 12px;
+      font-weight: bold;
+      font-size: 15px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    .catalog-list {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+    .card {
+      background: #fff;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+      position: relative;
+    }
+    .card img {
+      width: 100%;
+      height: 240px;
+      object-fit: cover;
+      display: block;
+    }
+    .card-body {
+      padding: 15px;
+    }
+    .card-title {
+      font-size: 17px;
+      font-weight: bold;
+      margin-bottom: 5px;
+      color: #333;
+    }
+    .card-price {
+      font-size: 17px;
+      color: #2e7d32;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+    .btn-whatsapp {
+      display: block;
+      width: 100%;
+      background-color: #25D366;
+      color: white;
+      text-align: center;
+      padding: 10px 0;
+      border-radius: 6px;
+      text-decoration: none;
+      font-weight: bold;
+      font-size: 14px;
+      margin-bottom: 8px;
+    }
+    .btn-delete {
+      display: block;
+      width: 100%;
+      background-color: #dc3545;
+      color: white;
+      text-align: center;
+      padding: 8px 0;
+      border-radius: 6px;
+      border: none;
+      font-weight: bold;
+      font-size: 13px;
+      cursor: pointer;
+    }
+    footer {
+      text-align: center;
+      margin-top: 25px;
+      font-size: 12px;
+      color: #777;
+      border-top: 1px solid #ddd;
+      padding-top: 15px;
+      line-height: 1.6;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sabit Mavi Bəzəkli Başlıq -->
+  <div class="brand-banner">
+    <h2>✨ S&R COLLECTION ✨</h2>
+    <p>✦ Keyfiyyət və Zəriflik ✦</p>
+  </div>
+
+  <div class="container">
+    <button class="btn-add" onclick="toggleForm()">➕ Yeni Məhsul Əlavə Et</button>
+
+    <!-- Elan Yerləşdirmə Forması -->
+    <div class="form-container" id="elanForm">
+      <h3>Yeni Məhsul Əlavə Et</h3>
+      
+      <label for="paltarAdi">Məhsulun Adı:</label>
+      <input type="text" id="paltarAdi" placeholder="Məs: Yataq dəsti / Don">
+      
+      <label for="paltarQiymeti">Məhsulun Qiyməti:</label>
+      <input type="text" id="paltarQiymeti" placeholder="Məs: 90 AZN">
+      
+      <label for="paltarSekilFile">Məhsulun Şəkli (Qalereyadan):</label>
+      <input type="file" id="paltarSekilFile" accept="image/*">
+      
+      <button class="btn-submit" onclick="elanElaveEt()">Elanı Yerləşdir</button>
+    </div>
+
+    <!-- Məhsulların Siyahısı -->
+    <div class="catalog-list" id="katalog"></div>
+
+    <!-- Müəllif Hüquqları -->
+    <footer>
+      <p>© 2026 S&R Collection. Bütün hüquqlar qorunur.</p>
+      <p>Hazırlanıb: S&R Store</p>
+    </footer>
+  </div>
+
+  <script>
+    // Səhifə açılan kimi yaddaşdakı məhsulları yükləyirik
+    document.addEventListener("DOMContentLoaded", mehsullariYukle);
+
+    function toggleForm() {
+      var form = document.getElementById("elanForm");
+      form.style.display = (form.style.display === "block") ? "none" : "block";
+    }
+
+    function elanElaveEt() {
+      var adInput = document.getElementById("paltarAdi");
+      var qiymetInput = document.getElementById("paltarQiymeti");
+      var fileInput = document.getElementById("paltarSekilFile");
+
+      var ad = adInput.value.trim();
+      var qiymet = qiymetInput.value.trim();
+
+      if (!ad || !qiymet) {
+        alert("Zəhmət olmasa məhsulun adını və qiymətini daxil edin!");
+        return;
+      }
+
+      if (fileInput.files && fileInput.files[0]) {
+        var reader = new FileReader();
+        reader.onload = function(e) {
+          var sekil = e.target.result;
+          yeniMehsulYaddaSaxla(ad, qiymet, sekil);
+          
+          // Formu təmizləyib bağlayırıq
+          adInput.value = "";
+          qiymetInput.value = "";
+          fileInput.value = "";
+          toggleForm();
+          mehsullariYukle();
+        };
+        reader.readAsDataURL(fileInput.files[0]);
+      } else {
+        alert("Zəhmət olmasa məhsul üçün şəkil seçin!");
+      }
+    }
+
+    function yeniMehsulYaddaSaxla(ad, qiymet, sekil) {
+      var mehsullar = JSON.parse(localStorage.getItem("sr_mehsullar")) || [];
+      var yeniMehsul = { id: Date.now(), ad: ad, qiymet: qiymet, sekil: sekil };
+      mehsullar.unshift(yeniMehsul); // Ən son əlavə olunan yuxarıda görsөнəcək
+      localStorage.setItem("sr_mehsullar", JSON.stringify(mehsullar));
+    }
+
+    function mehsullariYukle() {
+      var katalogDiv = document.getElementById("katalog");
+      var mehsullar = JSON.parse(localStorage.getItem("sr_mehsullar")) || [];
+      
+      katalogDiv.innerHTML = "";
+
+      if (mehsullar.length === 0) {
+        katalogDiv.innerHTML = '<p style="text-align:center; color:#888; font-size:14px; margin-top:20px;">Hələ ki, heç bir məhsul əlavə olunmayıb.</p>';
+        return;
+      }
+
+      var telefonNomer = "994554516551";
+
+      mehsullar.forEach(function(item) {
+        var mesaj = "Salam, S&R Collection-dan " + item.ad + " sifariş etmək istəyirəm";
+        var url = "https://wa.me/" + telefonNomer + "?text=" + encodeURIComponent(mesaj);
+
+        var cardHtml = `
+          <div class="card" id="card-${item.id}">
+            <img src="${item.sekil}" alt="${item.ad}">
+            <div class="card-body">
+              <div class="card-title">${item.ad}</div>
+              <div class="card-price">${item.qiymet}</div>
+              <a href="${url}" target="_blank" class="btn-whatsapp">📱 WhatsApp ilə Sifariş Et</a>
+              <button class="btn-delete" onclick="mehsulSil(${item.id})">🗑️ Elanı Sil</button>
+            </div>
+          </div>
+        `;
+        katalogDiv.insertAdjacentHTML('beforeend', cardHtml);
+      });
+    }
+
+    function mehsulSil(id) {
+      if (confirm("Bu elanı silmək istədiyinizə əminsiniz?")) {
+        var mehsullar = JSON.parse(localStorage.getItem("sr_mehsullar")) || [];
+        var yeniSiyahi = mehsullar.filter(function(item) {
+          return item.id !== id;
+        });
+        localStorage.setItem("sr_mehsullar", JSON.stringify(yeniSiyahi));
+        mehsullariYukle();
+      }
+    }
+  </script>
+
+</body>
+</html>
