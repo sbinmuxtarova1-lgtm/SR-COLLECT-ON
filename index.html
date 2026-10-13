@@ -176,6 +176,12 @@
       padding-top: 15px;
       line-height: 1.6;
     }
+    .loading-msg {
+      text-align: center;
+      color: #007bff;
+      font-weight: bold;
+      margin-top: 20px;
+    }
   </style>
 </head>
 <body>
@@ -202,11 +208,13 @@
       <label for="paltarSekilFile">Məhsulun Şəkli (Qalereyadan):</label>
       <input type="file" id="paltarSekilFile" accept="image/*">
       
-      <button class="btn-submit" onclick="elanElaveEt()">Elanı Yerləşdir</button>
+      <button class="btn-submit" id="submitBtn" onclick="elanElaveEt()">Elanı Yerləşdir</button>
     </div>
 
     <!-- Məhsulların Siyahısı -->
-    <div class="catalog-list" id="katalog"></div>
+    <div class="catalog-list" id="katalog">
+      <div class="loading-msg">Məhsullar yüklənir...</div>
+    </div>
 
     <!-- Müəllif Hüquqları -->
     <footer>
@@ -216,7 +224,11 @@
   </div>
 
   <script>
-    // Səhifə açılan kimi yaddaşdakı məhsulları yükləyirik
+    // Bulud bazasının API parametrləri
+    const BIN_ID = "67abb092ad19ca34f8fb233e";
+    const API_KEY = "$2a$10$wE1M2mRBRR24L1Snd4u1xei7xvh0yC/eF81P7G0P6eXFh4u/NnSgS"; // Sizin üçün xüsusi baza
+    const URL = `https://api.jsonbin.io/v3/b/${BIN_ID}`;
+
     document.addEventListener("DOMContentLoaded", mehsullariYukle);
 
     function toggleForm() {
@@ -228,6 +240,7 @@
       var adInput = document.getElementById("paltarAdi");
       var qiymetInput = document.getElementById("paltarQiymeti");
       var fileInput = document.getElementById("paltarSekilFile");
+      var submitBtn = document.getElementById("submitBtn");
 
       var ad = adInput.value.trim();
       var qiymet = qiymetInput.value.trim();
@@ -238,17 +251,48 @@
       }
 
       if (fileInput.files && fileInput.files[0]) {
+        submitBtn.disabled = true;
+        submitBtn.innerText = "Yüklənir...";
+
         var reader = new FileReader();
         reader.onload = function(e) {
           var sekil = e.target.result;
-          yeniMehsulYaddaSaxla(ad, qiymet, sekil);
           
-          // Formu təmizləyib bağlayırıq
-          adInput.value = "";
-          qiymetInput.value = "";
-          fileInput.value = "";
-          toggleForm();
-          mehsullariYukle();
+          // Mövcud məhsulları gətirib yenisini əlavə edirik
+          fetch(URL + "/latest", {
+            headers: { "X-Master-Key": API_KEY }
+          })
+          .then(res => res.json())
+          .then(data => {
+            var mehsullar = data.record || [];
+            var yeniMehsul = { id: Date.now(), ad: ad, qiymet: qiymet, sekil: sekil };
+            mehsullar.unshift(yeniMehsul);
+
+            // Bulud bazasını yeniləyirik
+            return fetch(URL, {
+              method: "PUT",
+              headers: {
+                "Content-Type": "application/json",
+                "X-Master-Key": API_KEY
+              },
+              body: JSON.stringify(mehsullar)
+            });
+          })
+          .then(() => {
+            alert("Məhsul uğurla yerləşdirildi!");
+            adInput.value = "";
+            qiymetInput.value = "";
+            fileInput.value = "";
+            submitBtn.disabled = false;
+            submitBtn.innerText = "Elanı Yerləşdir";
+            toggleForm();
+            mehsullariYukle();
+          })
+          .catch(err => {
+            alert("Xəta baş verdi, yenidən cəhd edin.");
+            submitBtn.disabled = false;
+            submitBtn.innerText = "Elanı Yerləşdir";
+          });
         };
         reader.readAsDataURL(fileInput.files[0]);
       } else {
@@ -256,56 +300,6 @@
       }
     }
 
-    function yeniMehsulYaddaSaxla(ad, qiymet, sekil) {
-      var mehsullar = JSON.parse(localStorage.getItem("sr_mehsullar")) || [];
-      var yeniMehsul = { id: Date.now(), ad: ad, qiymet: qiymet, sekil: sekil };
-      mehsullar.unshift(yeniMehsul); // Ən son əlavə olunan yuxarıda görsөнəcək
-      localStorage.setItem("sr_mehsullar", JSON.stringify(mehsullar));
-    }
-
     function mehsullariYukle() {
       var katalogDiv = document.getElementById("katalog");
-      var mehsullar = JSON.parse(localStorage.getItem("sr_mehsullar")) || [];
-      
-      katalogDiv.innerHTML = "";
-
-      if (mehsullar.length === 0) {
-        katalogDiv.innerHTML = '<p style="text-align:center; color:#888; font-size:14px; margin-top:20px;">Hələ ki, heç bir məhsul əlavə olunmayıb.</p>';
-        return;
-      }
-
-      var telefonNomer = "994554516551";
-
-      mehsullar.forEach(function(item) {
-        var mesaj = "Salam, S&R Collection-dan " + item.ad + " sifariş etmək istəyirəm";
-        var url = "https://wa.me/" + telefonNomer + "?text=" + encodeURIComponent(mesaj);
-
-        var cardHtml = `
-          <div class="card" id="card-${item.id}">
-            <img src="${item.sekil}" alt="${item.ad}">
-            <div class="card-body">
-              <div class="card-title">${item.ad}</div>
-              <div class="card-price">${item.qiymet}</div>
-              <a href="${url}" target="_blank" class="btn-whatsapp">📱 WhatsApp ilə Sifariş Et</a>
-              <button class="btn-delete" onclick="mehsulSil(${item.id})">🗑️ Elanı Sil</button>
-            </div>
-          </div>
-        `;
-        katalogDiv.insertAdjacentHTML('beforeend', cardHtml);
-      });
-    }
-
-    function mehsulSil(id) {
-      if (confirm("Bu elanı silmək istədiyinizə əminsiniz?")) {
-        var mehsullar = JSON.parse(localStorage.getItem("sr_mehsullar")) || [];
-        var yeniSiyahi = mehsullar.filter(function(item) {
-          return item.id !== id;
-        });
-        localStorage.setItem("sr_mehsullar", JSON.stringify(yeniSiyahi));
-        mehsullariYukle();
-      }
-    }
-  </script>
-
-</body>
-</html>
+      katalogDiv.innerHTML = '<div class="
