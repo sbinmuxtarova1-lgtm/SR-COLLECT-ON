@@ -186,7 +186,6 @@
 </head>
 <body>
 
-  <!-- Sabit Mavi Bəzəkli Başlıq -->
   <div class="brand-banner">
     <h2>✨ S&R COLLECTION ✨</h2>
     <p>✦ Keyfiyyət və Zəriflik ✦</p>
@@ -195,7 +194,6 @@
   <div class="container">
     <button class="btn-add" onclick="toggleForm()">➕ Yeni Məhsul Əlavə Et</button>
 
-    <!-- Elan Yerləşdirmə Forması -->
     <div class="form-container" id="elanForm">
       <h3>Yeni Məhsul Əlavə Et</h3>
       
@@ -211,12 +209,10 @@
       <button class="btn-submit" id="submitBtn" onclick="elanElaveEt()">Elanı Yerləşdir</button>
     </div>
 
-    <!-- Məhsulların Siyahısı -->
     <div class="catalog-list" id="katalog">
       <div class="loading-msg">Məhsullar yüklənir...</div>
     </div>
 
-    <!-- Müəllif Hüquqları -->
     <footer>
       <p>© 2026 S&R Collection. Bütün hüquqlar qorunur.</p>
       <p>Hazırlanıb: S&R Store</p>
@@ -224,9 +220,8 @@
   </div>
 
   <script>
-    // Bulud bazasının API parametrləri
     const BIN_ID = "67abb092ad19ca34f8fb233e";
-    const API_KEY = "$2a$10$wE1M2mRBRR24L1Snd4u1xei7xvh0yC/eF81P7G0P6eXFh4u/NnSgS"; // Sizin üçün xüsusi baza
+    const API_KEY = "$2a$10$wE1M2mRBRR24L1Snd4u1xei7xvh0yC/eF81P7G0P6eXFh4u/NnSgS";
     const URL = `https://api.jsonbin.io/v3/b/${BIN_ID}`;
 
     document.addEventListener("DOMContentLoaded", mehsullariYukle);
@@ -236,70 +231,11 @@
       form.style.display = (form.style.display === "block") ? "none" : "block";
     }
 
-    function elanElaveEt() {
-      var adInput = document.getElementById("paltarAdi");
-      var qiymetInput = document.getElementById("paltarQiymeti");
-      var fileInput = document.getElementById("paltarSekilFile");
-      var submitBtn = document.getElementById("submitBtn");
-
-      var ad = adInput.value.trim();
-      var qiymet = qiymetInput.value.trim();
-
-      if (!ad || !qiymet) {
-        alert("Zəhmət olmasa məhsulun adını və qiymətini daxil edin!");
-        return;
-      }
-
-      if (fileInput.files && fileInput.files[0]) {
-        submitBtn.disabled = true;
-        submitBtn.innerText = "Yüklənir...";
-
-        var reader = new FileReader();
-        reader.onload = function(e) {
-          var sekil = e.target.result;
-          
-          // Mövcud məhsulları gətirib yenisini əlavə edirik
-          fetch(URL + "/latest", {
-            headers: { "X-Master-Key": API_KEY }
-          })
-          .then(res => res.json())
-          .then(data => {
-            var mehsullar = data.record || [];
-            var yeniMehsul = { id: Date.now(), ad: ad, qiymet: qiymet, sekil: sekil };
-            mehsullar.unshift(yeniMehsul);
-
-            // Bulud bazasını yeniləyirik
-            return fetch(URL, {
-              method: "PUT",
-              headers: {
-                "Content-Type": "application/json",
-                "X-Master-Key": API_KEY
-              },
-              body: JSON.stringify(mehsullar)
-            });
-          })
-          .then(() => {
-            alert("Məhsul uğurla yerləşdirildi!");
-            adInput.value = "";
-            qiymetInput.value = "";
-            fileInput.value = "";
-            submitBtn.disabled = false;
-            submitBtn.innerText = "Elanı Yerləşdir";
-            toggleForm();
-            mehsullariYukle();
-          })
-          .catch(err => {
-            alert("Xəta baş verdi, yenidən cəhd edin.");
-            submitBtn.disabled = false;
-            submitBtn.innerText = "Elanı Yerləşdir";
-          });
-        };
-        reader.readAsDataURL(fileInput.files[0]);
-      } else {
-        alert("Zəhmət olmasa məhsul üçün şəkil seçin!");
-      }
-    }
-
-    function mehsullariYukle() {
-      var katalogDiv = document.getElementById("katalog");
-      katalogDiv.innerHTML = '<div class="
+    // Şəklin ölçüsünü balacalaşdıran funksiya
+    function sekliSix(file, callback) {
+      var reader = new FileReader();
+      reader.onload = function(e) {
+        var img = new Image();
+        img.onload = function() {
+          var canvas = document.createElement("canvas");
+          var maxWidth = 600; // Maksimum eni 
